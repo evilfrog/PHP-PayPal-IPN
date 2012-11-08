@@ -1,0 +1,6 @@
+{
+    "name": "ef/paypal",
+    "autoload": {
+        "psr-0": { "EF\\PayPal": "lib/" }
+    }
+}
