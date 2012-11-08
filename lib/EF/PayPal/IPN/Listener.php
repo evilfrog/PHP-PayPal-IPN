@@ -169,7 +169,7 @@ class Listener
         if ($this->response === false || $this->response_status == '0') {
             $errno = curl_errno($ch);
             $errstr = curl_error($ch);
-            throw new Exception("cURL error: [$errno] $errstr");
+            throw new \Exception("cURL error: [$errno] $errstr");
         }
     }
     
@@ -199,7 +199,7 @@ class Listener
         
         if (!$fp) { 
             // fsockopen error
-            throw new Exception("fsockopen error: [$errno] $errstr");
+            throw new \Exception("fsockopen error: [$errno] $errstr");
         } 
 
         $header = "POST /cgi-bin/webscr HTTP/1.1\r\n";
@@ -321,7 +321,7 @@ class Listener
                 $this->post_data = $_POST;
                 $encoded_data .= '&'.file_get_contents('php://input');
             } else {
-                throw new Exception("No POST data found.");
+                throw new \Exception("No POST data found.");
             }
         } else { 
             // use provided data array
@@ -336,7 +336,7 @@ class Listener
         else $this->fsockPost($encoded_data);
         
         if (strpos($this->response_status, '200') === false) {
-            throw new Exception("Invalid response status: ".$this->response_status);
+            throw new \Exception("Invalid response status: ".$this->response_status);
         }
         
         if (strpos($this->response, "VERIFIED") !== false) {
@@ -344,7 +344,7 @@ class Listener
         } elseif (strpos($this->response, "INVALID") !== false) {
             return false;
         } else {
-            throw new Exception("Unexpected response from PayPal.");
+            throw new \Exception("Unexpected response from PayPal.");
         }
     }
     
@@ -358,7 +358,7 @@ class Listener
         // require POST requests
         if ($_SERVER['REQUEST_METHOD'] && $_SERVER['REQUEST_METHOD'] != 'POST') {
             header('Allow: POST', true, 405);
-            throw new Exception("Invalid HTTP request method.");
+            throw new \Exception("Invalid HTTP request method.");
         }
     }
 }
