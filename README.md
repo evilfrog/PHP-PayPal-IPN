@@ -1,3 +1,6 @@
+@TODO: Rewrite readme
+=====================
+
 PHP-PayPal-IPN
 ==============
 
