@@ -9,18 +9,22 @@
  *
  *  @package    PHP-PayPal-IPN
  *  @author     Micah Carrick
+ *  @author     Jerzy Biernacki <jerzy.biernacki@gmail.com>
  *  @copyright  (c) 2012 - Micah Carrick
  *  @version    2.1.0
  */
-class IpnListener {
-    
+
+namespace EF\PayPal\IPN;
+
+class Listener 
+{    
     /**
      *  If true, the recommended cURL PHP library is used to send the post back 
      *  to PayPal. If flase then fsockopen() is used. Default true.
      *
      *  @var boolean
      */
-    public $use_curl = true;     
+    protected $use_curl = true;
     
     /**
      *  If true, explicitly sets cURL to use SSL version 3. Use this if cURL
@@ -28,7 +32,7 @@ class IpnListener {
      *
      *  @var boolean
      */
-    public $force_ssl_v3 = true;     
+    protected $force_ssl_v3 = true;
    
     /**
      *  If true, cURL will use the CURLOPT_FOLLOWLOCATION to follow any 
@@ -36,7 +40,7 @@ class IpnListener {
      *
      *  @var boolean
      */
-    public $follow_location = false;     
+    protected $follow_location = false;
     
     /**
      *  If true, an SSL secure connection (port 443) is used for the post back 
@@ -45,7 +49,7 @@ class IpnListener {
      *
      *  @var boolean
      */
-    public $use_ssl = true;      
+    protected $use_ssl = true;
     
     /**
      *  If true, the paypal sandbox URI www.sandbox.paypal.com is used for the
@@ -53,7 +57,7 @@ class IpnListener {
      *
      *  @var boolean
      */
-    public $use_sandbox = false; 
+    protected $use_sandbox = false;
     
     /**
      *  The amount of time, in seconds, to wait for the PayPal server to respond
@@ -61,15 +65,66 @@ class IpnListener {
      *
      *  @var int
      */
-    public $timeout = 30;       
+    protected $timeout = 30;
     
-    private $post_data = array();
-    private $post_uri = '';     
-    private $response_status = '';
-    private $response = '';
+    protected $post_data = array();
+    protected $post_uri = '';
+    protected $response_status = '';
+    protected $response = '';
 
-    const PAYPAL_HOST = 'www.paypal.com';
-    const SANDBOX_HOST = 'www.sandbox.paypal.com';
+    protected $paypal_host = 'www.paypal.com';
+    protected $sandbox_host = 'www.sandbox.paypal.com';
+    protected $cert_file = null;
+
+    public function __construct()
+    {
+        $this->cert_file = dirname(__FILE__).'/cert/api_cert_chain.crt';
+    }
+
+    public function setUseCurl($use_curl)
+    {
+        $this->use_curl = $use_curl;
+    }
+
+    public function setForceSslV3($force_ssl_v3)
+    {
+        $this->force_ssl_v3 = $force_ssl_v3;
+    }
+
+    public function setFollowLocation($follow_location)
+    {
+        $this->follow_location = $follow_location;
+    }
+
+    public function setUseSsl($use_ssl)
+    {
+        $this->use_ssl = $use_ssl;
+    }
+
+    public function setUseSandbox($use_sandbox)
+    {
+        $this->use_sandbox = $use_sandbox;
+    }
+
+    public function setTimeout($timeout)
+    {
+        $this->timeout = $timeout;
+    }
+
+    public function setPaypalHost($paypal_host)
+    {
+        $this->paypal_host = $paypal_host;
+    }
+
+    public function setSandboxHost($sandbox_host)
+    {
+        $this->sandbox_host = $sandbox_host;
+    }
+
+    public function setCertFile($cert_file)
+    {
+        $this->cert_file = $cert_file;
+    }
     
     /**
      *  Post Back Using cURL
@@ -95,8 +150,7 @@ class IpnListener {
 
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-		curl_setopt($ch, CURLOPT_CAINFO, 
-		            dirname(__FILE__)."/cert/api_cert_chain.crt");
+		curl_setopt($ch, CURLOPT_CAINFO, $this->cert_file);
         curl_setopt($ch, CURLOPT_URL, $uri);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $encoded_data);
@@ -170,8 +224,7 @@ class IpnListener {
     }
     
     private function getPaypalHost() {
-        if ($this->use_sandbox) return self::SANDBOX_HOST;
-        else return self::PAYPAL_HOST;
+        return (true === $this->use_sandbox) ? $this->sandbox_host : $this->paypal_host;
     }
     
     /**
